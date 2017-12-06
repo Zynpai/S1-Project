@@ -26,6 +26,9 @@ var loadState = {
 		game.load.image('bossF1', 'img/BossFlame.png');
 		game.load.image('bossF2', 'img/BossFlame2.png');
 		game.load.image('win', 'img/Win.png');
+		game.load.image('gb', 'img/gb.png');
+		game.load.image('controls', 'img/controls.png');
+		game.load.image('credits', 'img/credits.png');
 	},
 
 	

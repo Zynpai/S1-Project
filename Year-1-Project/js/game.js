@@ -1,68 +1,4 @@
-var livingEnemies = [];
-var enemyBullet;
-var baddies;
-var baddie;
-var sbaddies;
-var sbaddie;
-var firingTimer;
-var player;
-var cursors;
-var lasers; 
-var laser;
-var slasers;
-var slaser;
-var fireButton;
-var cursors;
-var playerfacing;
-var dragging;
-var targetAngle;
-var key1;
-var key2;
-var key3;
-var key4;
-var key5;
-var key6;
-var fireRate;
-var nextFire;
-var lives;
-var kills;
-var Bstairs;
-var stairs;
-var blocks;
-var timer;
-var timer2;
-var timer3;
-var totalTimer;
-var totalTimer2;
-var totalTimer3;
-var skill1Ready;
-var skill2Ready;
-var Qpic;
-var Epic;
-var QLpic;
-var ELpic;
-var alreadyDone;
-var alreadyDone2;
-var alreadyDone3;
-var alreadyDone4;
-var alreadyDone5;
-var alreadyDone6;
-var alreadyDone7;
-var alreadyDone8;
-var alreadyDone9;
-var alreadyDone10;
-var toolbars;
-var toolbar;
-var stage2;
-var stage3;
-var boss;
-var bossLives;
-var blasers;
-var bflames;
-var animation;
-var animation2;
-var firingTimerE;
-var firingTimerB;
+
 
 var gameState = {
 
@@ -87,6 +23,7 @@ create: function() {
 	firingTimer = 0;
 	firingTimerE = 0;
 	firingTimerB = 0;
+	tutorialF = 1;
 	
 	key1 = game.input.keyboard.addKey(Phaser.Keyboard.W);
 	key2 = game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -344,7 +281,7 @@ createBaddies: function() {
 	for (var i = 0; i < 7; i++) 
 	{
     baddie = baddies.create(i * 100, 10, 'baddie');
-	baddie.lives = 4;
+	baddie.lives = 3;
     baddie.body.velocity.x = 0;
 	baddie.body.velocity.y = 0;
 	baddie.anchor.setTo(0.5);
@@ -360,74 +297,19 @@ function Attack(baddie) {
 	
 	if (!(baddie.body.x + 500 < player.body.x || baddie.body.x - 500 > player.body.x) && !(baddie.body.y + 500 < player.body.y || baddie.body.y - 500> player.body.y )){
 		if (player.body.x > baddie.body.x){
-			baddie.body.velocity.x = 150;
+			baddie.body.velocity.x = 100;
 		}
 		if (player.body.x < baddie.body.x){
-			baddie.body.velocity.x = -150;
+			baddie.body.velocity.x = -100;
 		}
 		if (player.body.y > baddie.body.y){
-			baddie.body.velocity.y = 150;
+			baddie.body.velocity.y = 100;
 		}
 		if (player.body.y < baddie.body.y){
-			baddie.body.velocity.y = -150;
+			baddie.body.velocity.y = -100;
 		}
 	}	
 	
-}
-
-
-function killBaddie(laser, baddie) {
-	
-    laser.kill();
-	baddie.lives -= 1;
-	
-	if (baddie.lives < 1){
-	baddie.kill();
-	}
-}
-
-function killSBaddie(laser, sbaddie) {
-    laser.kill();
-	sbaddie.kill();	
-}
-
-function killBaddie2(slaser,baddie) {
-	baddie.lives -= 4;
-	slaser.kills -= 1;
-	
-	if (baddie.lives < 1){
-	baddie.kill();
-	}
-	
-	if (slaser.blives < 1) {
-	slaser.kill();
-	}
-}
-
-function killSBaddie2(slaser,sbaddie) {
-	sbaddie.kill();
-}
-
-function fireSLaser() {
-	
-    this.slaser = slasers.getFirstDead();
-	this.slaser.reset(player.x - 8, player.y - 8);
-	this.slaser.kills = 3;
-    game.physics.arcade.moveToPointer(this.slaser, 400);
-    
-}
-
-function fireLaser() {
-	 if (game.time.now > nextFire && lasers.countDead() > 0)
-    {
-        nextFire = game.time.now + fireRate;
-
-        laser = lasers.getFirstDead();
-
-        laser.reset(player.x - 8, player.y - 8);
-
-        game.physics.arcade.moveToPointer(laser, 400);
-    }
 }
 
 function bossFire() {
@@ -435,41 +317,14 @@ function bossFire() {
 	blaser.reset(boss.x + 405, boss.y +300);
 
 	if (bossLives <= 10){
-	game.physics.arcade.moveToObject(blaser,player,500);
+	game.physics.arcade.moveToObject(blaser,player,400);
 	firingTimerB = game.time.now + 2000;
 	}
 	else{
-    game.physics.arcade.moveToObject(blaser,player,350);
+    game.physics.arcade.moveToObject(blaser,player,250);
 	firingTimerB = game.time.now + 2000;
 	}
 }	
-
-function rotateLaser(laser) {
-	
-	targetAngle = (360 / (2 * Math.PI)) * game.math.angleBetween(
-        this.laser.x, this.laser.y,
-        this.game.input.activePointer.x, this.game.input.activePointer.y) +90;
-
-
-        if(targetAngle < 0)
-            targetAngle += 360;
-
-        if(game.input.activePointer && !dragging)
-        {
-			
-            dragging = true;
-        }
-        if(!game.input.activePointer && dragging)
-        {
-            dragging = false;
-        }
-
-        if(dragging)
-        {
-            this.laser.angle = targetAngle;
-        }
-	
-}
 
 function rotateSLaser() {
 	
@@ -497,63 +352,7 @@ function rotateSLaser() {
 	
 }
 
-function rotatePlayer(player) {
-	
-	this.targetAngle = (360 / (2 * Math.PI)) * game.math.angleBetween(
-        this.player.x, this.player.y,
-        this.game.input.activePointer.x, this.game.input.activePointer.y) +90;
 
-
-        if(this.targetAngle < 0)
-            this.targetAngle += 360;
-
-        if(game.input.activePointer && !this.dragging)
-        {
-			
-            this.dragging = true;
-        }
-        if(!game.input.activePointer && this.dragging)
-        {
-            this.dragging = false;
-        }
-
-        if(this.dragging)
-        {
-            this.player.angle = this.targetAngle;
-        }
-	
-}
-
-function createBlocks() {
-	for (var i = 0; i < 30; i ++)
-	{
-	var block = blocks.create(i * 30, 0, 'block');
-	block.body.immovable = true;
-	}
-	
-	for (var j = 0; j <45; j++)
-	{
-	var block = blocks.create( 0, j*20, 'block');
-	block.body.immovable = true;
-	}
-	
-	for (var k = 0; k <45; k++)
-	{
-	var block = blocks.create( 770, k*20, 'block');
-	block.body.immovable = true;
-	}
-	
-	for (var l = 0; l <30; l++)
-	{
-	var block = blocks.create( l* 30, 580, 'block');
-	block.body.immovable = true;	
-	}
-}
-
-
-function updateCounter(){
-	totalTimer++;
-}
 
 function updateCounter2() {
 	totalTimer2++;
@@ -574,13 +373,6 @@ function resetLaser(laser) {
 	
 }
 
-function resetSLaser(slaser) {
-	slaser.kill();
-}
-
-function resetELaser(elaser) {
-	elaser.kill();
-}
 
 function enemyFires(sbaddies) {
 	
@@ -605,7 +397,7 @@ function enemyFires(sbaddies) {
         // And fire the bullet from this enemy
         enemyBullet.reset(shooter.body.x , shooter.body.y + 52);
 
-        game.physics.arcade.moveToObject(enemyBullet,player,550);
+        game.physics.arcade.moveToObject(enemyBullet,player,350);
         firingTimerE = game.time.now + 2000;
     }
 

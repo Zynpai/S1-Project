@@ -10,7 +10,11 @@ var gameOver = {
 	
 	
 	start: function() {
+		if (tutorialF == 1){
 		game.state.start('game');
+		}else {	
+		game.state.start('gameT');
+		}
 
 	},
 }

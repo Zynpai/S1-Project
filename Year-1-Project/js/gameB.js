@@ -112,6 +112,7 @@ create: function(){
 	alreadyDone = 1;
 	alreadyDone2 = 1;
 	
+	game.add.sprite(0, 0, 'gb');
 	var barConfig = {x: 400, y: 50};
 	this.myHealthBar = new HealthBar(this.game, barConfig);
 },

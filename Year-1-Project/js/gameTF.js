@@ -1,8 +1,9 @@
-var gameState2 = {
-	
-create: function(){
-	stage3 = 0;
+var stage;
+gameStateTF = {
+
+create: function() {
 	dragging = false;
+	stage = 0;
 	fireRate = 300;
 	nextFire = 0;
 	totalTimer = 1;
@@ -85,10 +86,13 @@ create: function(){
 	alreadyDone = 1;
 	alreadyDone2 = 1;
 },
+
+update: function() {
+	game.debug.text("This is the last tutorial", 270, 530);
+	game.debug.text("Be careful of shooting baddies" , 280, 550);
+	game.debug.text("Kill all baddies to unlock stairs", 270, 570);
 	
-update: function(){
-		
-	rotatePlayer();
+		rotatePlayer();
 	
 	if (totalTimer >= 1 && alreadyDone == 1){
 		Epic = game.add.sprite(755, 555, 'Eskill');
@@ -218,6 +222,7 @@ update: function(){
 		timer2.start();
 		
 	}
+	
 	rotatePlayer();
 	this.sbaddies.forEach(this.rotateSBaddie, this);
 	
@@ -230,7 +235,7 @@ update: function(){
 	game.physics.arcade.collide(player, toolbars);
 		
 	if (game.time.now > firingTimerE){
-       this.sbaddies.forEach(enemyFires, this);
+       this.sbaddies.forEach(this.enemyFires, this);
     }
 	
 	if (this.sbaddies.countLiving() == 0){
@@ -239,11 +244,11 @@ update: function(){
 		stairs.enableBody = true;
 		stairs.physicsBodyType = Phaser.Physics.ARCADE;
 		game.physics.arcade.enable(stairs);
-		stage3 = 1;
+		stage = 1;
     }
 	
-	if (stage3 == 1){
-		game.physics.arcade.overlap(player, stairs, this.stage3R, null, this);
+	if (stage == 1){
+	game.physics.arcade.overlap(player, stairs, this.stage1, null, this);
 	}
 
 },
@@ -257,30 +262,57 @@ createSBaddies: function() {
 	sbaddie.body.velocity.y = 0;
 	sbaddie.anchor.setTo(0.1, 0.5);
    	}
-	for (var i = 1; i < 8; i++) 
-	{
-    sbaddie = this.sbaddies.create(i * 100, 160, 'sbaddie');
-	sbaddie.lives = 4;
-    sbaddie.body.velocity.x = 0;
-	sbaddie.body.velocity.y = 0;
-	sbaddie.anchor.setTo(0.1, 0.5);
-   	}
-
 },
 
 rotateSBaddie: function(sbaddie) {
 	sbaddie.rotation = game.physics.arcade.angleBetween(sbaddie, player);
 },
 
-stage3R: function(){
-	player.destroy()	
-	lasers.destroy()
-	slasers.destroy()
-	this.sbaddies.destroy()
-	enemyBullets.destroy
-	blocks.destroy()
-	game.state.start('gameB');
+enemyFires: function(sbaddies) {
+	
+    enemyBullet = enemyBullets.getFirstExists(false);
+
+    livingEnemies.length=0;
+
+    this.sbaddies.forEachAlive(function(sbaddie){
+
+        // put every living enemy in an array
+        livingEnemies.push(sbaddie);
+    });
+
+
+    if (enemyBullet && livingEnemies.length > 0)
+    {
+        
+        var random=game.rnd.integerInRange(0,livingEnemies.length-1);
+
+        // randomly select one of them
+        var shooter=livingEnemies[random];
+        // And fire the bullet from this enemy
+        enemyBullet.reset(shooter.body.x , shooter.body.y + 52);
+
+        game.physics.arcade.moveToObject(enemyBullet,player,350);
+        firingTimerE = game.time.now + 2000;
+    }
+
 },
 
+stage1: function() {
 	
-}	
+	game.state.start('game');
+},	
+}
+
+function killSBaddie(laser, sbaddie) {
+    laser.kill();
+	sbaddie.kill();	
+}
+
+function killSBaddie2(slaser,sbaddie) {
+	sbaddie.kill();
+}
+
+
+function resetELaser(elaser) {
+	elaser.kill();
+}

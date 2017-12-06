@@ -1,7 +1,7 @@
 var credits = {
 	
 	create: function() {
-		game.add.sprite(0, 0, 'sky');
+		game.add.sprite(0, 0, 'credits');
 		
 		var mkey = game.input.keyboard.addKey(Phaser.Keyboard.M);
 		

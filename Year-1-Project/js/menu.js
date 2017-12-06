@@ -1,6 +1,10 @@
+var tutorialF;
 var menuState = {
 	
+	
 	create: function() {
+		
+		
 		game.add.sprite(0, 0, 'menu');
 		
 		var skey = game.input.keyboard.addKey(Phaser.Keyboard.S);
@@ -18,7 +22,11 @@ var menuState = {
 	
 	
 	start: function() {
+		if (tutorialF == 1){
 		game.state.start('game');
+		}else {	
+		game.state.start('gameT');
+		}
 
 	},
 	
