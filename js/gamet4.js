@@ -1,16 +1,6 @@
+var stageTF;
 
-
-var gameState = {
-
-init: function() {
-	// Listen to space & enter keys
-	var keys = [Phaser.KeyCode.SPACEBAR];
-	// Create Phaser.Key objects for listening to the state
-	phaserKeys = game.input.keyboard.addKeys(keys);
-	// Capture these keys to stop the browser from receiving this event
-	game.input.keyboard.addKeyCapture(keys);
-}, 
-
+gameStateT4 = {
 create: function() {
 	stage2 = 0;
 	dragging = false;
@@ -24,6 +14,7 @@ create: function() {
 	firingTimerE = 0;
 	firingTimerB = 0;
 	tutorialF = 1;
+	stageTF = 0;
 	
 	key1 = game.input.keyboard.addKey(Phaser.Keyboard.W);
 	key2 = game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -98,10 +89,18 @@ create: function() {
 	alreadyDone2 = 1;
 },
 
-update: function() {
-		
+update:function() {
+	
+	game.debug.text("Press Q to fire beam (15 sec cooldown)" , 250, 550);
+	game.debug.text("Kill all baddies to unlock stairs", 270, 570);
+	
 	rotatePlayer();
-	game.physics.arcade.collide(baddies);
+	baddies.forEach(this.rotateBaddie, this);
+	
+	game.physics.arcade.overlap(lasers, baddies, killBaddie, null, this);
+	game.physics.arcade.overlap(slaser, baddies, killBaddie2, null, this);
+	game.physics.arcade.collide(player, blocks);
+	game.physics.arcade.collide(player, toolbars);
 	
 	if (totalTimer >= 1 && alreadyDone == 1){
 		Epic = game.add.sprite(755, 555, 'Eskill');
@@ -233,217 +232,66 @@ update: function() {
 		
 	}
 	
-	baddies.forEach(Attack, this);
-
-	
-	game.physics.arcade.overlap(lasers, baddies, killBaddie, null, this);
-	game.physics.arcade.overlap(slaser, baddies, killBaddie2, null, this);
-	game.physics.arcade.overlap(lasers, blocks, collisionHandler, null, this);
-	game.physics.arcade.overlap(player, baddies, collisionHandler2, null, this);
-	
-	game.physics.arcade.collide(baddies);
-	game.physics.arcade.collide(player, blocks);
-	game.physics.arcade.collide(baddies, blocks);
-	game.physics.arcade.collide(player, Bstairs);
-	game.physics.arcade.collide(baddies, Bstairs);
-	game.physics.arcade.collide(player, toolbars);
-	game.physics.arcade.collide(baddie, toolbars);
-	
 	if (baddies.countLiving() == 0){
         Bstairs.destroy();
 		stairs = game.add.sprite(360, 0, 'stairs');
 		stairs.enableBody = true;
 		stairs.physicsBodyType = Phaser.Physics.ARCADE;
 		game.physics.arcade.enable(stairs);
-		stage2 = 1;
+		stageTF = 1;
     }
 	
-	if (stage2 == 1){
-		game.physics.arcade.overlap(player, stairs, this.stage2R, null, this);
+	if (stageTF == 1){
+		game.physics.arcade.overlap(player, stairs, this.stageTF, null, this);
 	}
+},	
 	
-	baddies.forEach(this.rotateBaddie, this);
-	game.physics.arcade.collide(baddies);
-
-},
-
-stage2R: function(){
-	player.destroy()
-	stairs.destroy()
-	lasers.destroy()
-	baddies.destroy()
-	slasers.destroy()
-	blocks.destroy()
-	game.state.start('game2');
-},
-
 createBaddies: function() {
-	for (var i = 0; i < 7; i++) 
+	for (var i = 0; i < 5; i++) 
 	{
-    baddie = baddies.create(i * 100, 10, 'baddie');
+    baddie = baddies.create(300, 80*i, 'baddie');
 	baddie.lives = 3;
     baddie.body.velocity.x = 0;
 	baddie.body.velocity.y = 0;
 	baddie.anchor.setTo(0.5);
-   	}
-},
+   	}	
+},	
 
 rotateBaddie: function(baddie) {
 	baddie.rotation = game.physics.arcade.angleBetween(baddie, player);
 },
+
+stageTF: function() {
+	baddies.destroy()
+	lasers.destroy()
+	blocks.destroy()
+	slasers.destroy()
+	game.state.start('gameTF');
+},	
 }
 
-function Attack(baddie) {
+function killBaddie2(slaser,baddie) {
+	baddie.lives -= 4;
+	slaser.kills -= 1;
 	
-	if (!(baddie.body.x + 500 < player.body.x || baddie.body.x - 500 > player.body.x) && !(baddie.body.y + 500 < player.body.y || baddie.body.y - 500> player.body.y )){
-		if (player.body.x > baddie.body.x){
-			baddie.body.velocity.x = 100;
-		}
-		if (player.body.x < baddie.body.x){
-			baddie.body.velocity.x = -100;
-		}
-		if (player.body.y > baddie.body.y){
-			baddie.body.velocity.y = 100;
-		}
-		if (player.body.y < baddie.body.y){
-			baddie.body.velocity.y = -100;
-		}
-	}	
-	
-}
-
-function bossFire() {
-	blaser = blasers.getFirstExists(false);
-	blaser.reset(boss.x + 405, boss.y +300);
-
-	if (bossLives <= 10){
-	game.physics.arcade.moveToObject(blaser,player,400);
-	firingTimerB = game.time.now + 2000;
+	if (baddie.lives < 1){
+	baddie.kill();
 	}
-	else{
-    game.physics.arcade.moveToObject(blaser,player,250);
-	firingTimerB = game.time.now + 2000;
-	}
-}	
-
-function rotateSLaser() {
 	
-	targetAngle = (360 / (2 * Math.PI)) * game.math.angleBetween(
-        this.slaser.x, this.slaser.y,
-        this.game.input.activePointer.x, this.game.input.activePointer.y) +90;
-
-
-        if(targetAngle < 0)
-           targetAngle += 360;
-
-        if(game.input.activePointer && !dragging)
-        {
-            dragging = true;
-        }
-        if(!game.input.activePointer && dragging)
-        {
-            dragging = false;
-        }
-
-        if(dragging)
-        {
-            slaser.angle = targetAngle;
-        }
-	
-}
-
-
-
-function updateCounter2() {
-	totalTimer2++;
-}
-
-function updateCounter3() {
-	totalTimer3++;	
-	animation++;
-}
-
-function updateCounter4() {
-	totalTimer4++;	
-	animation2++;
-}
-
-function resetLaser(laser) {
-	laser.kill();
-	
-}
-
-
-function enemyFires(sbaddies) {
-	
-    enemyBullet = enemyBullets.getFirstExists(false);
-
-    livingEnemies.length=0;
-
-    this.sbaddies.forEachAlive(function(sbaddie){
-
-        // put every living enemy in an array
-        livingEnemies.push(sbaddie);
-    });
-
-
-    if (enemyBullet && livingEnemies.length > 0)
-    {
-        
-        var random=game.rnd.integerInRange(0,livingEnemies.length-1);
-
-        // randomly select one of them
-        var shooter=livingEnemies[random];
-        // And fire the bullet from this enemy
-        enemyBullet.reset(shooter.body.x , shooter.body.y + 52);
-
-        game.physics.arcade.moveToObject(enemyBullet,player,350);
-        firingTimerE = game.time.now + 2000;
-    }
-
-} 
-
-function collisionHandler(laser) {
-	laser.kill();
-}
-
-function collisionHandler2(){
-	player.kill();
-	game.state.start('gameOver');
-}
-
-function collisionHandler3(){
-	player.kill();
-	game.state.start('gameOver');
-}
-
-function collisionHandler4(){
-	player.kill();
-	game.state.start('gameOver');
-}
-
-function collisionHandler5(){
-	player.kill();
-	game.state.start('gameOver');
-}
-
-function collisionHandler6(){
-	player.kill();
-	game.state.start('gameOver');
-}
-
-function damageBoss(laser){
-	laser.kill();
-	if (alreadyDone3 == 0){
-	bossLives = bossLives - 1;
-	alreadyDone3 = 1;
-	}
-}
-
-function damageBoss2(slaser){
+	if (slaser.blives < 1) {
 	slaser.kill();
-	if (alreadyDone3 == 0){
-	bossLives = bossLives - 5;
-	alreadyDone3 = 1;
 	}
-}	
+}
+
+function resetSLaser(slaser) {
+	slaser.kill();
+}
+
+function fireSLaser() {
+	
+    this.slaser = slasers.getFirstDead();
+	this.slaser.reset(player.x - 8, player.y - 8);
+	this.slaser.kills = 3;
+    game.physics.arcade.moveToPointer(this.slaser, 400);
+    
+}
